@@ -1,0 +1,22 @@
+name: Cleanup Old Media
+on:
+  schedule:
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Delete old images and videos
+        run: |
+          find . -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.webm" \) -mtime +1 ! -name "*.yml" ! -name "README.md" -delete
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A || true
+          git commit -m "Cleanup old images and videos" || true
+          git push || true
